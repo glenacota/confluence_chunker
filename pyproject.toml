@@ -3,9 +3,9 @@
 name = "confluence_chunker"
 version = "0.1.0"
 homepage = "https://github.com/glenacota/confluence_chunker"
-description = "Top-level package for Confluence Chunker."
+description = "A tool to create chunks of text out of a Confluence page."
 authors = ["Guido Lena Cota <guido.lenacota@gmail.com>"]
-readme = "README.rst"
+readme = "README.md"
 license =  "Apache-2.0"
 classifiers=[
     'Development Status :: 2 - Pre-Alpha',
