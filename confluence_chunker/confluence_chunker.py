@@ -1,6 +1,7 @@
 import os
 import logging
 import sys
+import click
 
 from atlassian import Confluence
 from decouple import config
@@ -27,17 +28,19 @@ def chunkenize_no_context(text):
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
     return text_splitter.split_text(text)
 
-# entry point    
-def main():
-    print("Hi!")
-    parent_page_id = sys.argv[1]
-    response = confluence.get_page_by_id(parent_page_id,expand="body.export_view")
+def print_chunks(chunks):
+    for chunk in chunks:
+        print(chunk + '\n')
+
+@click.command()
+@click.option('--pageid', prompt='Page id', help='The id of the wiki page to process.')
+@click.option('--method', prompt='Chunking method (no_context)', default='no_context', help='The method applied by the chunkenizer.')  
+def main(pageid, method):
+    response = confluence.get_page_by_id(pageid,expand="body.export_view")
     html_body = parse_html_body(response['body']['export_view']['value'])
 
     print(response['title'])
     chunks = chunkenize_no_context(html_body)
-    for chunk in chunks:
-        print(chunk + '\n')
-
+    print_chunks(chunks)
 
 main()
