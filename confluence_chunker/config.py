@@ -31,3 +31,41 @@ opensearch_client = OpenSearch(
     ssl_assert_hostname = False,
     ssl_show_warn = False
 )
+
+create_index_body = {
+    "settings": {
+        "index": {
+            "search.default_pipeline": config('OPENSEARCH_SEARCH_PIPELINE_NAME'),
+            "knn": True,
+            "default_pipeline": config('OPENSEARCH_INGEST_PIPELINE_NAME')
+        }
+    },
+    "mappings": {
+        "properties": {
+            "chunk": {
+                "type": "text"
+            },
+            "title": {
+                "type": "text",
+                "fields": {
+                    "keyword": {
+                        "type": "keyword"
+                    }
+                }
+            },
+            "url": {
+                "type": "keyword"
+            },
+            "passage_embedding": {
+                "type": "knn_vector",
+                "dimension": 768,
+                "method": {
+                    "engine": "lucene",
+                    "space_type": "l2",
+                    "name": "hnsw",
+                    "parameters": {}
+                }
+            }
+        }
+    }
+    }

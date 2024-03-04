@@ -5,7 +5,7 @@ import json
 
 from config import confluence
 from config import size_chunkenizer, html_chunkenizer
-from config import opensearch_client
+from config import opensearch_client, create_index_body
 from lxml import etree, html
 
 # initialise logger
@@ -50,6 +50,11 @@ def map_chunk_to_json(confluence_rest_response, chunk):
         "chunk": chunk
     })
 
+def index_into_opensearch(index, chunks):
+    opensearch_client.indices.delete(index=index)
+    opensearch_client.indices.create(index=index, body=create_index_body)
+    [opensearch_client.index(index=index, body=chunk) for chunk in chunks]
+
 @click.command()
 @click.option('--pageid', prompt='Page id', default='137729483', help='The id of the wiki page to process.')
 @click.option('--method', prompt='Chunking method (none|nocontext|html)', default='none', help='The method applied by the chunkenizer.')  
@@ -59,10 +64,10 @@ def run(pageid, method, opensearch_index):
     html_body = parse_html_body(response['body']['export_view']['value'])
     chunks = chunkenize_by_method(method, html_body)
     logger.info('Number of chunks created for page id %s: %s', pageid, len(chunks))
-    chunks_as_json = map_chunks_to_json(chunks)
+    chunks_as_json = map_chunks_to_json(response, chunks)
 
     if (opensearch_index):
-        [opensearch_client.index(index=opensearch_index, body=chunk) for chunk in chunks_as_json]
+        index_into_opensearch(opensearch_index, chunks_as_json)
     
     # print chunks
     [print(chunk) for chunk in chunks_as_json]
