@@ -33,14 +33,12 @@ def print_chunks(chunks):
         print(chunk + '\n')
 
 @click.command()
-@click.option('--pageid', prompt='Page id', help='The id of the wiki page to process.')
+@click.option('--pageid', prompt='Page id', default='137729483', help='The id of the wiki page to process.')
 @click.option('--method', prompt='Chunking method (no_context)', default='no_context', help='The method applied by the chunkenizer.')  
-def main(pageid, method):
+def run(pageid, method):
     response = confluence.get_page_by_id(pageid,expand="body.export_view")
     html_body = parse_html_body(response['body']['export_view']['value'])
 
     print(response['title'])
     chunks = chunkenize_no_context(html_body)
     print_chunks(chunks)
-
-main()
