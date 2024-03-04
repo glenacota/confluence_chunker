@@ -24,9 +24,21 @@ def parse_html_body(html_body_to_parse):
     encoded_body = soup.encode(formatter="html5")
     return str(encoded_body)
 
-def chunkenize_no_context(text):
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
+def chunkenize_none(text):
+    return [text]
+
+def chunkenize_nocontext(text):
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=20)
     return text_splitter.split_text(text)
+
+def chunkenize_by_method(method, text):
+    match method:
+        case 'none':
+            return chunkenize_none(text)
+        case 'nocontext':
+            return chunkenize_nocontext(text)
+        case _:
+            return chunkenize_none(text)
 
 def print_chunks(chunks):
     for chunk in chunks:
@@ -34,11 +46,12 @@ def print_chunks(chunks):
 
 @click.command()
 @click.option('--pageid', prompt='Page id', default='137729483', help='The id of the wiki page to process.')
-@click.option('--method', prompt='Chunking method (no_context)', default='no_context', help='The method applied by the chunkenizer.')  
+@click.option('--method', prompt='Chunking method (none|nocontext)', default='none', help='The method applied by the chunkenizer.')  
 def run(pageid, method):
     response = confluence.get_page_by_id(pageid,expand="body.export_view")
     html_body = parse_html_body(response['body']['export_view']['value'])
 
+    chunks = chunkenize_by_method(method, html_body)
+    logger.info('Number of chunks created for page id %s: %s', pageid, len(chunks))
     print(response['title'])
-    chunks = chunkenize_no_context(html_body)
     print_chunks(chunks)
