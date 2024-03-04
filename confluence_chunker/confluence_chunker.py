@@ -59,9 +59,10 @@ def run(pageid, method, opensearch_index):
     html_body = parse_html_body(response['body']['export_view']['value'])
     chunks = chunkenize_by_method(method, html_body)
     logger.info('Number of chunks created for page id %s: %s', pageid, len(chunks))
+    chunks_as_json = map_chunks_to_json(chunks)
 
     if (opensearch_index):
-        [opensearch_client.index(index=opensearch_index, body=chunk) for chunk in map_chunks_to_json(response, chunks)]
+        [opensearch_client.index(index=opensearch_index, body=chunk) for chunk in chunks_as_json]
     
     # print chunks
-    [print(chunk) for chunk in map_chunks_to_json(response, chunks)]
+    [print(chunk) for chunk in chunks_as_json]
