@@ -16,7 +16,8 @@ logger.setLevel(log_level)
 
 def parse_html_body(html_body_to_parse):
     tree = etree.fromstring(html_body_to_parse, etree.HTMLParser())
-    etree.strip_tags(tree, 'span', 'strong')
+    etree.strip_tags(tree, 'span', 'strong', 'a', 'div', 'thead', 'tbody')
+    etree.strip_elements(tree, 'img')
     for element in tree.iter():
         element.attrib.clear()
     parsed_html = etree.tostring(tree, encoding='unicode', method='html').replace("\n","")
