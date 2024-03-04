@@ -3,7 +3,9 @@ import logging
 import click
 import json
 
-from config import confluence, size_chunkenizer, html_chunkenizer
+from config import confluence
+from config import size_chunkenizer, html_chunkenizer
+from config import opensearch_client
 from lxml import etree, html
 
 # initialise logger
@@ -59,7 +61,7 @@ def run(pageid, method, opensearch_index):
     logger.info('Number of chunks created for page id %s: %s', pageid, len(chunks))
 
     if (opensearch_index):
-        print("TODO: ingest chunks data into OpenSearch")
+        [opensearch_client.index(index=opensearch_index, body=chunk) for chunk in map_chunks_to_json(response, chunks)]
     
     # print chunks
     [print(chunk) for chunk in map_chunks_to_json(response, chunks)]
