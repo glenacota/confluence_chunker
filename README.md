@@ -8,8 +8,7 @@ A python tool to create chunks of text out of a Confluence page.
 - Split the content of wiki pages into chunks using the open-source tool [LangChain](https://www.langchain.com/).
 
 ### Planned features
-- Implement different chunking strategies using Langchain.
-- Index the chunked content into a running [OpenSearch](https://opensearch.org/) instance. 
+- Setup ingest and RAG pipelines in OpenSearch from the tool.
 
 ## Requirements
 ### Access token to Confluence
@@ -19,6 +18,8 @@ The tool assumes that authenticated to the Confluence server takes place via OAu
 The tool fetches a few mandatory configurations from the following environment variables:
 - `CONFLUENCE_URL` - the base url of the Confluence server
 - `CONFLUENCE_TOKEN` - the access token to make authenticated REST calls to the Confluence server.
+- `OPENSEARCH_HOST` - the host of the OpenSearch server whereto index the chunks
+- `OPENSEARCH_PORT` - the port of the OpenSearch server whereto index the chunks
 
 Make sure that such environment variables are set before running the tool.
 
