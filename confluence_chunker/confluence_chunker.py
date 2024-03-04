@@ -1,6 +1,7 @@
 import os
 import logging
 import click
+import json
 
 from config import confluence, size_chunkenizer, html_chunkenizer
 from lxml import etree, html
@@ -37,9 +38,15 @@ def chunkenize_by_method(method, text):
         case _:
             return [text]
 
-def print_chunks(chunks):
-    for chunk in chunks:
-        print(chunk + '\n')
+def map_chunks_to_json(confluence_rest_response, chunks):
+    return [map_chunk_to_json(confluence_rest_response, chunk) for chunk in chunks]
+
+def map_chunk_to_json(confluence_rest_response, chunk):
+    return json.dumps({
+        "title": confluence_rest_response['title'],
+        "url": confluence_rest_response['_links']['base'] + confluence_rest_response['_links']['tinyui'],
+        "chunk": chunk
+    })
 
 @click.command()
 @click.option('--pageid', prompt='Page id', default='137729483', help='The id of the wiki page to process.')
@@ -47,8 +54,8 @@ def print_chunks(chunks):
 def run(pageid, method):
     response = confluence.get_page_by_id(pageid,expand="body.export_view")
     html_body = parse_html_body(response['body']['export_view']['value'])
-
     chunks = chunkenize_by_method(method, html_body)
+    
     logger.info('Number of chunks created for page id %s: %s', pageid, len(chunks))
-    print(response['title'])
-    print_chunks(chunks)
+    # print chunks
+    [print(chunk) for chunk in map_chunks_to_json(response, chunks)]
