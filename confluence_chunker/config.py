@@ -2,8 +2,9 @@ from decouple import config
 from atlassian import Confluence
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.text_splitter import HTMLHeaderTextSplitter
+from opensearchpy import OpenSearch
 
-# Confluence client
+### Confluence client
 confluence = Confluence(url=config('CONFLUENCE_URL'), token=config('CONFLUENCE_TOKEN'), timeout=300)
 
 ### Chunkenizers
@@ -20,3 +21,13 @@ _html_heeaders_to_split_on = [
     ("table", "Table")
 ]
 html_chunkenizer = HTMLHeaderTextSplitter(headers_to_split_on=_html_heeaders_to_split_on)
+
+### OpenSearch client - assume no auth
+opensearch_client = OpenSearch(
+    hosts = [{'host': config('OPENSEARCH_HOST'), 'port': config('OPENSEARCH_PORT')}],
+    http_compress = True, # enables gzip compression for request bodies
+    use_ssl = False,
+    verify_certs = False,
+    ssl_assert_hostname = False,
+    ssl_show_warn = False
+)
