@@ -1,44 +1,41 @@
 import os
 import logging
-import sys
 import click
 
-from atlassian import Confluence
-from decouple import config
-from bs4 import BeautifulSoup
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from config import confluence, size_chunkenizer, html_chunkenizer
+from lxml import etree, html
 
 # initialise logger
 log_level = os.environ.get("LOG_LEVEL", "INFO")
 logger = logging.getLogger(__name__)
 logger.setLevel(log_level)
-# init confluence lib
-confluence = Confluence(url=config('CONFLUENCE_URL'), token=config('CONFLUENCE_TOKEN'), timeout=300)
 
 def parse_html_body(html_body_to_parse):
-    soup = BeautifulSoup(html_body_to_parse, 'html.parser')
-    for tag in soup.find_all(True):
-        tag.attrs = {}
-        for span in tag.find_all("span"):
-            span.unwrap()
-    encoded_body = soup.encode(formatter="html5")
-    return str(encoded_body)
+    tree = etree.fromstring(html_body_to_parse, etree.HTMLParser())
+    etree.strip_tags(tree, 'span', 'strong')
+    for element in tree.iter():
+        element.attrib.clear()
+    parsed_html = etree.tostring(tree, encoding='unicode', method='html').replace("\n","")
+    return parsed_html
 
-def chunkenize_none(text):
-    return [text]
+def chunkenize_html(text):
+    document_chunks = html_chunkenizer.split_text(text)
+    document_chunks = size_chunkenizer.split_documents(document_chunks)
+    return [combine_html_doc_chunk(doc) for doc in document_chunks]
 
-def chunkenize_nocontext(text):
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=20)
-    return text_splitter.split_text(text)
+def combine_html_doc_chunk(document):
+    return " - ".join(document.dict()["metadata"].values()) + ' - ' + document.dict()["page_content"]
 
 def chunkenize_by_method(method, text):
     match method:
         case 'none':
-            return chunkenize_none(text)
+            return [text]
         case 'nocontext':
-            return chunkenize_nocontext(text)
+            return size_chunkenizer.split_text(text)
+        case 'html':
+            return chunkenize_html(text)
         case _:
-            return chunkenize_none(text)
+            return [text]
 
 def print_chunks(chunks):
     for chunk in chunks:
@@ -46,7 +43,7 @@ def print_chunks(chunks):
 
 @click.command()
 @click.option('--pageid', prompt='Page id', default='137729483', help='The id of the wiki page to process.')
-@click.option('--method', prompt='Chunking method (none|nocontext)', default='none', help='The method applied by the chunkenizer.')  
+@click.option('--method', prompt='Chunking method (none|nocontext|html)', default='none', help='The method applied by the chunkenizer.')  
 def run(pageid, method):
     response = confluence.get_page_by_id(pageid,expand="body.export_view")
     html_body = parse_html_body(response['body']['export_view']['value'])
