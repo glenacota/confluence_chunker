@@ -51,11 +51,15 @@ def map_chunk_to_json(confluence_rest_response, chunk):
 @click.command()
 @click.option('--pageid', prompt='Page id', default='137729483', help='The id of the wiki page to process.')
 @click.option('--method', prompt='Chunking method (none|nocontext|html)', default='none', help='The method applied by the chunkenizer.')  
-def run(pageid, method):
+@click.option('--opensearch_index', prompt='Index name', prompt_required=False, help='The OpenSearch index whereto ingest the chunk data (requires setting OPENSEARCH_URL env var).')
+def run(pageid, method, opensearch_index):
     response = confluence.get_page_by_id(pageid,expand="body.export_view")
     html_body = parse_html_body(response['body']['export_view']['value'])
     chunks = chunkenize_by_method(method, html_body)
-    
     logger.info('Number of chunks created for page id %s: %s', pageid, len(chunks))
+
+    if (opensearch_index):
+        print("TODO: ingest chunks data into OpenSearch")
+    
     # print chunks
     [print(chunk) for chunk in map_chunks_to_json(response, chunks)]
