@@ -2,9 +2,10 @@ import os, sys
 import logging
 import click
 import json
+import markdownify
 
 from config import confluence
-from config import size_chunkenizer, html_chunkenizer
+from config import size_chunkenizer, html_chunkenizer, md_chunkenizer
 from config import opensearch_client, create_index_body
 from lxml import etree, html
 
@@ -31,6 +32,12 @@ def chunkenize_html(text):
 def combine_html_doc_chunk(document):
     return " - ".join(document.dict()["metadata"].values()) + ' - ' + document.dict()["page_content"]
 
+def chunkenize_markdown(text):
+    markdown_text = markdownify.markdownify(text)
+    md_chunks = md_chunkenizer.split_text(markdown_text)
+    md_chunks = size_chunkenizer.split_documents(md_chunks)
+    return [chunk.dict()["page_content"] for chunk in md_chunks]
+
 def chunkenize_by_method(method, text):
     match method:
         case 'none':
@@ -39,6 +46,8 @@ def chunkenize_by_method(method, text):
             return size_chunkenizer.split_text(text)
         case 'html':
             return chunkenize_html(text)
+        case 'markdown':
+            return chunkenize_markdown(text)
         case _:
             return [text]
 

@@ -2,6 +2,7 @@ from decouple import config
 from atlassian import Confluence
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.text_splitter import HTMLHeaderTextSplitter
+from langchain.text_splitter import MarkdownHeaderTextSplitter
 from opensearchpy import OpenSearch
 
 ### Confluence client
@@ -21,6 +22,16 @@ _html_heeaders_to_split_on = [
     ("table", "Table")
 ]
 html_chunkenizer = HTMLHeaderTextSplitter(headers_to_split_on=_html_heeaders_to_split_on)
+
+# Create chunks from markdown
+_md_heeaders_to_split_on = [
+    ("#", "Header 1"),
+    ("##", "Header 2"),
+    ("###", "Header 3"),
+    ("####", "Header 4"),
+    ("#####", "Header 5")
+]
+md_chunkenizer = MarkdownHeaderTextSplitter(headers_to_split_on=_md_heeaders_to_split_on,strip_headers=False)
 
 ### OpenSearch client - assume no auth
 opensearch_client = OpenSearch(
