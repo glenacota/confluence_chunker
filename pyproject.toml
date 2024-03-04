@@ -27,8 +27,8 @@ packages = [
 python = ">=3.12,<4"
 atlassian-python-api = ">=3.41"
 python-decouple = ">=3.8"
-beautifulsoup4 = ">=4.12.3"
 langchain = ">=0.1.0"
+lxml = ">=5.0"
 click = ">=8.1"
 
 [tool.poetry.dev-dependencies]
