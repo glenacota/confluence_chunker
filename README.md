@@ -3,6 +3,8 @@ A python tool to create chunks of text out of a Confluence page.
 
 * Free software: Apache-2.0
 
+
+
 ## Features
 - Fetch wiki pages by id from a Confluence server using the [Atlassian REST API](https://developer.atlassian.com/cloud/confluence/rest/v1/intro/#about).
 - Split the content of wiki pages into chunks using the open-source tool [LangChain](https://www.langchain.com/).
@@ -67,7 +69,7 @@ Options:
   --help                   Show this message and exit.
 ```
 
-To run the chunkenizer:
+To run the chunkenizer, e.g.:
 ```
-$ python3 confluence_chunker
+$ python3 confluence_chunker --pageid 226200355 --recursive --opensearch_index destination-index --method markdown≈
 ```
