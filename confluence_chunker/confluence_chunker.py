@@ -78,7 +78,7 @@ def get_chunks_from_page(pageid, method):
 @click.command()
 @click.option('--pageid', required=True, help='The id of the wiki page to process.')
 @click.option('--recursive', is_flag=True, default=False, help='Process all children (recursively) of the provided wiki page.')
-@click.option('--method', default='none', help='The method applied by the chunkenizer. Possible values: none|nocontext|html.')
+@click.option('--method', default='none', help='The method applied by the chunkenizer. Possible values: none|nocontext|html|markdown.')
 @click.option('--opensearch_index', help='The OpenSearch index whereto ingest the chunk data.')
 def run(pageid, recursive, method, opensearch_index):
     chunks = get_chunks_from_page(pageid, method)
