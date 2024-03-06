@@ -7,9 +7,8 @@ import markdownify
 from config import confluence
 from config import size_chunkenizer, html_chunkenizer, md_chunkenizer
 from config import opensearch_client, create_index_body
-from lxml import etree, html
+from lxml import etree
 
-# initialise logger
 log_level = os.environ.get("LOG_LEVEL", "INFO")
 logging.basicConfig(stream=sys.stdout, level=log_level)
 logger = logging.getLogger(__name__)
@@ -29,6 +28,7 @@ def chunkenize_html(text):
     document_chunks = size_chunkenizer.split_documents(document_chunks)
     return [combine_html_doc_chunk(doc) for doc in document_chunks]
 
+# this is to retain section context in chunks
 def combine_html_doc_chunk(document):
     return " - ".join(document.dict()["metadata"].values()) + ' - ' + document.dict()["page_content"]
 
@@ -40,8 +40,6 @@ def chunkenize_markdown(text):
 
 def chunkenize_by_method(method, text):
     match method:
-        case 'none':
-            return [text]
         case 'nocontext':
             return size_chunkenizer.split_text(text)
         case 'html':
