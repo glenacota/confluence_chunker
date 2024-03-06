@@ -35,7 +35,7 @@ md_chunkenizer = MarkdownHeaderTextSplitter(headers_to_split_on=_md_heeaders_to_
 
 ### OpenSearch client - assume no auth
 opensearch_client = OpenSearch(
-    hosts = [{'host': config('OPENSEARCH_HOST'), 'port': config('OPENSEARCH_PORT')}],
+    hosts = [{'host': config('OPENSEARCH_HOST', default='localhost'), 'port': config('OPENSEARCH_PORT', default=9200)}],
     http_compress = True, # enables gzip compression for request bodies
     use_ssl = False,
     verify_certs = False,
@@ -44,13 +44,6 @@ opensearch_client = OpenSearch(
 )
 
 create_index_body = {
-    "settings": {
-        "index": {
-            "search.default_pipeline": config('OPENSEARCH_SEARCH_PIPELINE_NAME'),
-            "knn": True,
-            "default_pipeline": config('OPENSEARCH_INGEST_PIPELINE_NAME')
-        }
-    },
     "mappings": {
         "properties": {
             "chunk": {
@@ -66,17 +59,7 @@ create_index_body = {
             },
             "url": {
                 "type": "keyword"
-            },
-            "passage_embedding": {
-                "type": "knn_vector",
-                "dimension": 768,
-                "method": {
-                    "engine": "lucene",
-                    "space_type": "l2",
-                    "name": "hnsw",
-                    "parameters": {}
-                }
             }
         }
     }
-    }
+}
