@@ -73,17 +73,30 @@ def get_chunks_from_page(pageid, method):
     logger.info('Number of chunks created for page id %s: %s', pageid, len(chunks))
     return map_chunks_to_json(response, chunks)
 
+def get_chunks_from_list_of_pages(list_of_pageid, method):
+    chunks = []
+    for pageid in list_of_pageid:
+        chunks.extend(get_chunks_from_page(pageid, method))
+    return chunks
+
+def get_children_pageid_recursively(pageid):
+    children = []
+    for child in confluence.get_page_child_by_type(pageid):
+        children.append(child['id'])
+        grandchildren = get_children_pageid_recursively(child['id'])
+        children.extend(grandchildren)
+    return children
+
 @click.command()
 @click.option('--pageid', required=True, help='The id of the wiki page to process.')
 @click.option('--recursive', is_flag=True, default=False, help='Process all children (recursively) of the provided wiki page.')
 @click.option('--method', default='none', help='The method applied by the chunkenizer. Possible values: none|nocontext|html|markdown.')
 @click.option('--opensearch_index', help='The OpenSearch index whereto ingest the chunk data.')
 def run(pageid, recursive, method, opensearch_index):
-    chunks = get_chunks_from_page(pageid, method)
-    if (recursive):
-        child_ids = [response['id'] for response in confluence.get_page_child_by_type(pageid)]
-        for child_id in child_ids:
-            chunks.extend(get_chunks_from_page(child_id, method))
+    list_of_pageid = [pageid]
+    if recursive:
+        list_of_pageid.extend(get_children_pageid_recursively(pageid))
+    chunks = get_chunks_from_list_of_pages(list_of_pageid, method)
     
     if (opensearch_index):
         index_into_opensearch(opensearch_index, chunks)
