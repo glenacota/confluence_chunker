@@ -15,6 +15,8 @@ logger = logging.getLogger(__name__)
 logger.setLevel(log_level)
 
 def parse_html_body(html_body_to_parse):
+    if not html_body_to_parse:
+        return "" 
     tree = etree.fromstring(html_body_to_parse, etree.HTMLParser())
     etree.strip_tags(tree, 'span', 'strong', 'a', 'div', 'thead', 'tbody')
     etree.strip_elements(tree, 'img')
@@ -97,8 +99,9 @@ def run(pageid, recursive, method, opensearch_index):
     if recursive:
         list_of_pageid.extend(get_children_pageid_recursively(pageid))
     chunks = get_chunks_from_list_of_pages(list_of_pageid, method)
+    [print(json.loads(chunk)["title"]) for chunk in chunks]
+
+    # if (opensearch_index):
+    #     index_into_opensearch(opensearch_index, chunks)
     
-    if (opensearch_index):
-        index_into_opensearch(opensearch_index, chunks)
-    
-    [logger.info(chunk) for chunk in chunks]
+    # [logger.info(chunk) for chunk in chunks]
