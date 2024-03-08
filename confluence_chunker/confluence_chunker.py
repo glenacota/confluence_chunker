@@ -71,7 +71,8 @@ def index_into_opensearch(opensearch_index, chunks):
 def get_chunks_from_page(pageid, method):
     response = confluence.get_page_by_id(pageid,expand="body.export_view")
     html_body = parse_html_body(response['body']['export_view']['value'])
-    chunks = chunkenize_by_method(method, html_body)
+    
+    chunks = chunkenize_by_method(method, html_body) if html_body else []
     logger.info('Number of chunks created for page id %s: %s', pageid, len(chunks))
     return map_chunks_to_json(response, chunks)
 
