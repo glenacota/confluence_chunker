@@ -99,9 +99,8 @@ def run(pageid, recursive, method, opensearch_index):
     if recursive:
         list_of_pageid.extend(get_children_pageid_recursively(pageid))
     chunks = get_chunks_from_list_of_pages(list_of_pageid, method)
-    [print(json.loads(chunk)["title"]) for chunk in chunks]
 
-    # if (opensearch_index):
-    #     index_into_opensearch(opensearch_index, chunks)
+    if (opensearch_index):
+        index_into_opensearch(opensearch_index, chunks)
     
-    # [logger.info(chunk) for chunk in chunks]
+    [logger.info(chunk) for chunk in chunks]
