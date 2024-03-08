@@ -60,8 +60,8 @@ $ python3 confluence_chunker --help
 Usage: confluence_chunker [OPTIONS]
 
 Options:
-  --pageid TEXT                   The id of the page to process.  [required]
-  -r, --recursive                 When set, process all page descendants.
+  --pageid TEXT                   The id of the page to process along with all
+                                  its descendants.  [required]
   --method [none|fixed|html|markdown]
                                   The chunking method to use. Default: none.
   --index TEXT                    When set, create an OpenSearch index with
