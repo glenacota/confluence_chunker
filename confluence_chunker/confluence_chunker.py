@@ -91,17 +91,18 @@ def get_children_pageid_recursively(pageid):
     return children
 
 @click.command()
-@click.option('--pageid', required=True, help='The id of the wiki page to process.')
-@click.option('--recursive', is_flag=True, default=False, help='Process all children (recursively) of the provided wiki page.')
-@click.option('--method', default='none', help='The method applied by the chunkenizer. Possible values: none|nocontext|html|markdown.')
-@click.option('--opensearch_index', help='The OpenSearch index whereto ingest the chunk data.')
-def run(pageid, recursive, method, opensearch_index):
+@click.option('--pageid', required=True, help='The id of the page to process.')
+@click.option('--recursive', is_flag=True, default=False, help='When set, process all page descendants.')
+@click.option('--method', type=click.Choice(['none', 'fixed', 'html', 'markdown'], case_sensitive=False), 
+              default='none', help='The chunking method to use. Default: none.')
+@click.option('--index', help='When set, create an OpenSearch index with this name and store chunk data into it.')
+def run(pageid, recursive, method, index):
     list_of_pageid = [pageid]
     if recursive:
         list_of_pageid.extend(get_children_pageid_recursively(pageid))
     chunks = get_chunks_from_list_of_pages(list_of_pageid, method)
 
-    if (opensearch_index):
-        index_into_opensearch(opensearch_index, chunks)
+    if (index):
+        index_into_opensearch(index, chunks)
     
     [logger.info(chunk) for chunk in chunks]

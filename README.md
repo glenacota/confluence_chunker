@@ -60,18 +60,18 @@ $ python3 confluence_chunker --help
 Usage: confluence_chunker [OPTIONS]
 
 Options:
-  --pageid TEXT            The id of the wiki page to process.  [required]
-  --recursive              Process all children (recursively) of the provided
-                           wiki page.
-  --method TEXT            The method applied by the chunkenizer. Possible
-                           values: none|nocontext|html|markdown.
-  --opensearch_index TEXT  The OpenSearch index whereto ingest the chunk data.
-  --help                   Show this message and exit.
+  --pageid TEXT                   The id of the page to process.  [required]
+  --recursive                     When set, process all page descendants.
+  --method [none|fixed|html|markdown]
+                                  The chunking method to use. Default: none.
+  --index TEXT                    When set, create an OpenSearch index with
+                                  this name and store chunk data into it.
+  --help                          Show this message and exit.
 ```
 
 To run the chunkenizer, e.g.:
 ```
-$ python3 confluence_chunker --pageid 226200355 --recursive --opensearch_index destination-index --method markdown≈
+$ python3 confluence_chunker --pageid 226200355 --recursive --index destination-index --method markdown
 ```
 
 ### Run OpenSearch locally
