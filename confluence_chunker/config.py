@@ -44,21 +44,22 @@ opensearch_client = OpenSearch(
 )
 
 create_index_body = {
+    "settings": {
+        "number_of_shards": 1,
+        "number_of_replicas": 0,
+        "refresh_interval": "30s"
+    },
     "mappings": {
         "properties": {
             "chunk": {
                 "type": "text"
             },
             "title": {
-                "type": "text",
-                "fields": {
-                    "keyword": {
-                        "type": "keyword"
-                    }
-                }
+                "type": "keyword"
             },
             "url": {
-                "type": "keyword"
+                "type": "object",
+                "enabled": False
             }
         }
     }
