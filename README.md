@@ -61,11 +61,12 @@ Usage: confluence_chunker [OPTIONS]
 
 Options:
   --pageid TEXT                   The id of the page to process.  [required]
-  --recursive                     When set, process all page descendants.
+  -r, --recursive                 When set, process all page descendants.
   --method [none|fixed|html|markdown]
                                   The chunking method to use. Default: none.
   --index TEXT                    When set, create an OpenSearch index with
                                   this name and store chunk data into it.
+  -v, --verbose                   When set, print chunks also to stdout.
   --help                          Show this message and exit.
 ```
 

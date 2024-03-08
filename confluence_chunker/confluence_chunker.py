@@ -92,11 +92,12 @@ def get_children_pageid_recursively(pageid):
 
 @click.command()
 @click.option('--pageid', required=True, help='The id of the page to process.')
-@click.option('--recursive', is_flag=True, default=False, help='When set, process all page descendants.')
+@click.option('--recursive', '-r', is_flag=True, default=False, help='When set, process all page descendants.')
 @click.option('--method', type=click.Choice(['none', 'fixed', 'html', 'markdown'], case_sensitive=False), 
               default='none', help='The chunking method to use. Default: none.')
 @click.option('--index', help='When set, create an OpenSearch index with this name and store chunk data into it.')
-def run(pageid, recursive, method, index):
+@click.option('--verbose', '-v', is_flag=True, default=False, help='When set, print chunks also to stdout.')
+def run(pageid, recursive, method, index, verbose):
     list_of_pageid = [pageid]
     if recursive:
         list_of_pageid.extend(get_children_pageid_recursively(pageid))
@@ -104,5 +105,5 @@ def run(pageid, recursive, method, index):
 
     if (index):
         index_into_opensearch(index, chunks)
-    
-    [logger.info(chunk) for chunk in chunks]
+    if (verbose):
+        [print(chunk) for chunk in chunks]
