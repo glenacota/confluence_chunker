@@ -1,0 +1,50 @@
+# 1 OpenSearch node with ML features enabled, 1 Dashboard instance - (v2.12.0)
+version: '3'
+services:
+  osnode:
+    image: opensearchproject/opensearch:2.12.0
+    container_name: os2.12cc
+    environment:
+      - cluster.name=opensearch-cluster
+      - node.name=osnode
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - plugins.ml_commons.only_run_on_ml_node=false
+      - plugins.ml_commons.memory_feature_enabled=true
+      - plugins.ml_commons.rag_pipeline_feature_enabled=true
+      - plugins.ml_commons.model_access_control_enabled=true
+      - plugins.ml_commons.native_memory_threshold=99
+      - "DISABLE_SECURITY_PLUGIN=true"
+      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    volumes:
+      - osdata:/usr/share/opensearch/data
+    ports:
+      - 9200:9200
+      - 9600:9600
+    networks:
+      - opensearch-net
+  dashboards:
+    image: opensearchproject/opensearch-dashboards:2.12.0
+    container_name: osd2.12cc
+    ports:
+      - 5601:5601
+    expose:
+      - "5601"
+    environment:
+      - 'OPENSEARCH_HOSTS=["http://osnode:9200"]'
+      - 'DISABLE_SECURITY_DASHBOARDS_PLUGIN=true'
+    networks:
+      - opensearch-net
+
+volumes:
+  osdata:
+
+networks:
+  opensearch-net:

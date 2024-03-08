@@ -3,8 +3,6 @@ A python tool to create chunks of text out of a Confluence page.
 
 * Free software: Apache-2.0
 
-
-
 ## Features
 - Fetch wiki pages by id from a Confluence server using the [Atlassian REST API](https://developer.atlassian.com/cloud/confluence/rest/v1/intro/#about).
 - Split the content of wiki pages into chunks using the open-source tool [LangChain](https://www.langchain.com/).
@@ -37,6 +35,8 @@ Make sure that such environment variables are set before running the tool.
 If you plan to index the chunks into OpenSearch, here are the requirements:
 - Disable the cluster security features - notably, no authentication or fine-grained access control.
 - Set the environment variables `OPENSEARCH_HOST` and `OPENSEARCH_PORT` with the actual values.
+
+This repo includes a Docker compose file to spin up a cluster locally - instructions at the bottom of the document.
 
 ## Usage
 We use Python 3.12 for this application, so it must be installed in your system. For MacOS users, `brew install python@3.12` should suffice.
@@ -72,4 +72,10 @@ Options:
 To run the chunkenizer, e.g.:
 ```
 $ python3 confluence_chunker --pageid 226200355 --recursive --opensearch_index destination-index --method markdown≈
+```
+
+### Run OpenSearch locally
+This repo includes a Docker compose file to spin up a 1-node OpenSearch cluster v2.12 with ML features enabled, along with an OpenSearch Dashboards server already configured to communicate with the cluster.
+```
+$ docker-compose -f path/to/confluence_chunker/docker-compose-opensearch.yml up
 ```
