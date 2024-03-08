@@ -6,7 +6,7 @@ import markdownify
 
 from config import confluence
 from config import size_chunkenizer, html_chunkenizer, md_chunkenizer
-from config import opensearch_client, create_index_body
+from config import opensearch_client, default_index_settings
 from lxml import etree
 
 log_level = os.environ.get("LOG_LEVEL", "INFO")
@@ -42,7 +42,7 @@ def chunkenize_markdown(text):
 
 def chunkenize_by_method(method, text):
     match method:
-        case 'nocontext':
+        case 'fixed':
             return size_chunkenizer.split_text(text)
         case 'html':
             return chunkenize_html(text)
@@ -63,7 +63,7 @@ def map_chunk_to_json(confluence_rest_response, chunk):
 
 def index_into_opensearch(opensearch_index, chunks):
     opensearch_client.indices.delete(index=opensearch_index, ignore_unavailable=True)
-    opensearch_client.indices.create(index=opensearch_index, body=create_index_body)
+    opensearch_client.indices.create(index=opensearch_index, body=default_index_settings)
     for loop_index, chunk in enumerate(chunks):
         logger.info("Indexing '%s:' document %d/%d", opensearch_index, loop_index, len(chunks))
         opensearch_client.index(index=opensearch_index, body=chunk)

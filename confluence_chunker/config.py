@@ -43,7 +43,7 @@ opensearch_client = OpenSearch(
     ssl_show_warn = False
 )
 
-create_index_body = {
+default_index_settings = {
     "settings": {
         "number_of_shards": 1,
         "number_of_replicas": 0,
