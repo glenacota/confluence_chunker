@@ -14,8 +14,6 @@ log_level = os.environ.get("LOG_LEVEL", "INFO")
 logging.basicConfig(stream=sys.stdout, level=log_level)
 logger = logging.getLogger(__name__)
 logger.setLevel(log_level)
-# opensearch client
-global osclient
 
 def parse_html_body(html_body_to_parse):
     if not html_body_to_parse:
@@ -60,12 +58,6 @@ def map_chunk_to_json(confluence_rest_response, chunk):
         "chunk": chunk
     })
 
-def index_into_opensearch(chunks):
-    global osclient
-    for loop_index, chunk in enumerate(chunks):
-        logger.info("Indexing' document %d/%d", loop_index, len(chunks))
-        osclient.index(chunk)
-
 def get_chunks_from_page(pageid, method):
     response = confluence.get_page_by_id(pageid,expand="body.export_view")
     html_body = parse_html_body(response['body']['export_view']['value'])
@@ -95,14 +87,14 @@ def get_children_pageid_recursively(pageid):
 @click.option('--index', help='The prefix of the OpenSearch index. Complete name: "<index_value>-<method_value>"')
 @click.option('--verbose', '-v', is_flag=True, default=False, help='When set, print chunks also to stdout.')
 def run(pageid, method, index, verbose):
-    global osclient
-    
     list_of_pageid = [pageid]
     list_of_pageid.extend(get_children_pageid_recursively(pageid))
     chunks = get_chunks_from_list_of_pages(list_of_pageid, method)
 
-    if (index):
-        osclient = OSClient("-".join([index, method]))
-        index_into_opensearch(chunks)
+    osclient = OSClient("-".join([index, method]))
+    for loop_index, chunk in enumerate(chunks):
+        logger.info("Indexing' document %d/%d", (loop_index+1), len(chunks))
+        osclient.index(chunk)
+
     if (verbose):
         [print(chunk) for chunk in chunks]
