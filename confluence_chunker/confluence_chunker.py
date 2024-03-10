@@ -28,11 +28,7 @@ def parse_html_body(html_body_to_parse):
 def chunkenize_html(text):
     document_chunks = html_chunkenizer.split_text(text)
     document_chunks = size_chunkenizer.split_documents(document_chunks)
-    return [combine_html_doc_chunk(doc) for doc in document_chunks]
-
-# this is to retain section context in chunks
-def combine_html_doc_chunk(document):
-    return " - ".join(document.dict()["metadata"].values()) + ' - ' + document.dict()["page_content"]
+    return [doc.dict()["[page_content"] for doc in document_chunks]
 
 def chunkenize_markdown(text):
     markdown_text = markdownify.markdownify(text)
