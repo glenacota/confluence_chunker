@@ -1,12 +1,12 @@
 # Confluence Chunker
-A python tool to create chunks of text out of a Confluence page.
+A python tool to create chunks of text out of a Confluence page and store them into an OpenSearch cluster.
 
 * Free software: Apache-2.0
 
 ## Features
 - Fetch wiki pages by id from a Confluence server using the [Atlassian REST API](https://developer.atlassian.com/cloud/confluence/rest/v1/intro/#about).
 - Split the content of wiki pages into chunks using the open-source tool [LangChain](https://www.langchain.com/).
-- Support indexing of chunks information to [OpenSearch](https://opensearch.org/).
+- Store chunks into [OpenSearch](https://opensearch.org/).
 
 Information about the chunk is formatted as JSON, with the following schema:
 ```
@@ -32,7 +32,7 @@ The tool fetches a few mandatory configurations from the following environment v
 Make sure that such environment variables are set before running the tool.
 
 ### OpenSearch configuration
-If you plan to index the chunks into OpenSearch, here are the requirements:
+To index the chunks into a running instance of OpenSearch:
 - Disable the cluster security features - notably, no authentication or fine-grained access control.
 - Set the environment variables `OPENSEARCH_HOST` and `OPENSEARCH_PORT` with the actual values.
 
@@ -64,15 +64,15 @@ Options:
                                   its descendants.  [required]
   --method [none|fixed|html|markdown]
                                   The chunking method to use. Default: none.
-  --index TEXT                    When set, create an OpenSearch index with
-                                  this name and store chunk data into it.
+  --index TEXT                    The prefix of the OpenSearch index. Complete
+                                  name: "<index_value>-<method_value>"
   -v, --verbose                   When set, print chunks also to stdout.
   --help                          Show this message and exit.
 ```
 
 To run the chunkenizer, e.g.:
 ```
-$ python3 confluence_chunker --pageid 226200355 --recursive --index destination-index --method markdown
+$ python3 confluence_chunker --pageid 226200355 --index destination-index --method markdown
 ```
 
 ### Run OpenSearch locally

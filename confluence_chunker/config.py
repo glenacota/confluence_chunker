@@ -34,33 +34,44 @@ _md_heeaders_to_split_on = [
 md_chunkenizer = MarkdownHeaderTextSplitter(headers_to_split_on=_md_heeaders_to_split_on,strip_headers=False)
 
 ### OpenSearch client - assume no auth
-opensearch_client = OpenSearch(
-    hosts = [{'host': config('OPENSEARCH_HOST', default='localhost'), 'port': config('OPENSEARCH_PORT', default=9200)}],
-    http_compress = True, # enables gzip compression for request bodies
-    use_ssl = False,
-    verify_certs = False,
-    ssl_assert_hostname = False,
-    ssl_show_warn = False
-)
-
-default_index_settings = {
-    "settings": {
-        "number_of_shards": 1,
-        "number_of_replicas": 0,
-        "refresh_interval": "30s"
-    },
-    "mappings": {
-        "properties": {
-            "chunk": {
-                "type": "text"
-            },
-            "title": {
-                "type": "keyword"
-            },
-            "url": {
-                "type": "object",
-                "enabled": False
+class OSClient:
+    DEFAULT_INDEX_SETTINGS = {
+        "settings": {
+            "number_of_shards": 1,
+            "number_of_replicas": 0,
+            "refresh_interval": "30s"
+        },
+        "mappings": {
+            "properties": {
+                "chunk": {
+                    "type": "text"
+                },
+                "title": {
+                    "type": "keyword"
+                },
+                "url": {
+                    "type": "object",
+                    "enabled": False
+                }
             }
         }
     }
-}
+
+    def __init__(self, index_name):
+        self.client = OpenSearch(
+            hosts = [{'host': config('OPENSEARCH_HOST', default='localhost'), 'port': config('OPENSEARCH_PORT', default=9200)}],
+            http_compress = True, # enables gzip compression for request bodies
+            use_ssl = False,
+            verify_certs = False,
+            ssl_assert_hostname = False,
+            ssl_show_warn = False
+        )
+        self.index_name = index_name
+        self._init_index()
+
+    def _init_index(self):
+        if not self.client.indices.exists(index=self.index_name):
+            self.client.indices.create(index=self.index_name, body=self.DEFAULT_INDEX_SETTINGS)
+
+    def index(self, data):
+        self.client.index(index=self.index_name, body=data)

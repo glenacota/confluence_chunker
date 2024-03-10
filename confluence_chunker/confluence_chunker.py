@@ -6,13 +6,16 @@ import markdownify
 
 from config import confluence
 from config import size_chunkenizer, html_chunkenizer, md_chunkenizer
-from config import opensearch_client, default_index_settings
+from config import OSClient
 from lxml import etree
 
+# init logger
 log_level = os.environ.get("LOG_LEVEL", "INFO")
 logging.basicConfig(stream=sys.stdout, level=log_level)
 logger = logging.getLogger(__name__)
 logger.setLevel(log_level)
+# opensearch client
+global osclient
 
 def parse_html_body(html_body_to_parse):
     if not html_body_to_parse:
@@ -57,12 +60,11 @@ def map_chunk_to_json(confluence_rest_response, chunk):
         "chunk": chunk
     })
 
-def index_into_opensearch(opensearch_index, chunks):
-    if not opensearch_client.indices.exists(index=opensearch_index):
-        opensearch_client.indices.create(index=opensearch_index, body=default_index_settings)
+def index_into_opensearch(chunks):
+    global osclient
     for loop_index, chunk in enumerate(chunks):
-        logger.info("Indexing '%s:' document %d/%d", opensearch_index, loop_index, len(chunks))
-        opensearch_client.index(index=opensearch_index, body=chunk)
+        logger.info("Indexing' document %d/%d", loop_index, len(chunks))
+        osclient.index(chunk)
 
 def get_chunks_from_page(pageid, method):
     response = confluence.get_page_by_id(pageid,expand="body.export_view")
@@ -90,14 +92,17 @@ def get_children_pageid_recursively(pageid):
 @click.option('--pageid', required=True, help='The id of the page to process along with all its descendants.')
 @click.option('--method', type=click.Choice(['none', 'fixed', 'html', 'markdown'], case_sensitive=False), 
               default='none', help='The chunking method to use. Default: none.')
-@click.option('--index', help='When set, create an OpenSearch index with this name and store chunk data into it.')
+@click.option('--index', help='The prefix of the OpenSearch index. Complete name: "<index_value>-<method_value>"')
 @click.option('--verbose', '-v', is_flag=True, default=False, help='When set, print chunks also to stdout.')
 def run(pageid, method, index, verbose):
+    global osclient
+    
     list_of_pageid = [pageid]
     list_of_pageid.extend(get_children_pageid_recursively(pageid))
     chunks = get_chunks_from_list_of_pages(list_of_pageid, method)
 
     if (index):
-        index_into_opensearch(index, chunks)
+        osclient = OSClient("-".join([index, method]))
+        index_into_opensearch(chunks)
     if (verbose):
         [print(chunk) for chunk in chunks]
