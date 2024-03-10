@@ -57,9 +57,7 @@ def map_chunk_to_json(confluence_rest_response, chunk):
         "chunk": chunk
     })
 
-def index_into_opensearch(opensearch_index, force_index_recreate, chunks):
-    if force_index_recreate:
-        opensearch_client.indices.delete(index=opensearch_index, ignore_unavailable=True)
+def index_into_opensearch(opensearch_index, chunks):
     if not opensearch_client.indices.exists(index=opensearch_index):
         opensearch_client.indices.create(index=opensearch_index, body=default_index_settings)
     for loop_index, chunk in enumerate(chunks):
@@ -93,14 +91,13 @@ def get_children_pageid_recursively(pageid):
 @click.option('--method', type=click.Choice(['none', 'fixed', 'html', 'markdown'], case_sensitive=False), 
               default='none', help='The chunking method to use. Default: none.')
 @click.option('--index', help='When set, create an OpenSearch index with this name and store chunk data into it.')
-@click.option('--force_index_recreate', is_flag=True, default=False, help='When set, force recreation of the OpenSearch index if already existing.')
 @click.option('--verbose', '-v', is_flag=True, default=False, help='When set, print chunks also to stdout.')
-def run(pageid, method, index, force_index_recreate, verbose):
+def run(pageid, method, index, verbose):
     list_of_pageid = [pageid]
     list_of_pageid.extend(get_children_pageid_recursively(pageid))
     chunks = get_chunks_from_list_of_pages(list_of_pageid, method)
 
     if (index):
-        index_into_opensearch(index, force_index_recreate, chunks)
+        index_into_opensearch(index, chunks)
     if (verbose):
         [print(chunk) for chunk in chunks]

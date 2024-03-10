@@ -66,8 +66,6 @@ Options:
                                   The chunking method to use. Default: none.
   --index TEXT                    When set, create an OpenSearch index with
                                   this name and store chunk data into it.
-  --force_index_recreate          When set, force recreation of the OpenSearch
-                                  index if already existing.
   -v, --verbose                   When set, print chunks also to stdout.
   --help                          Show this message and exit.
 ```
