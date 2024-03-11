@@ -10,7 +10,7 @@ confluence = Confluence(url=config('CONFLUENCE_URL'), token=config('CONFLUENCE_T
 
 ### Chunkenizers
 # Create chunks by number of characters and ignoring the text context
-size_chunkenizer = RecursiveCharacterTextSplitter(chunk_size=480, chunk_overlap=10)
+size_chunkenizer = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=12)
 
 # Create chunks by html tags
 _html_heeaders_to_split_on = [
