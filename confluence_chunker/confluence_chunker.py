@@ -82,13 +82,15 @@ def get_children_pageid_recursively(pageid):
 
 @click.command()
 @click.option('--pageid', required=True, help='The id of the page to process along with all its descendants.')
+@click.option('--ignore_descendants', is_flag=True, default=False, help='When set, process only the provided page ignoring its descendants.')
 @click.option('--method', type=click.Choice(['none', 'fixed', 'html', 'markdown'], case_sensitive=False), 
               default='none', help='The chunking method to use. Default: none.')
 @click.option('--index', help='The prefix of the OpenSearch index. Complete name: "<index_value>-<method_value>"')
 @click.option('--verbose', '-v', is_flag=True, default=False, help='When set, print chunks also to stdout.')
-def run(pageid, method, index, verbose):
+def run(pageid, ignore_descendants, method, index, verbose):
     list_of_pageid = [pageid]
-    list_of_pageid.extend(get_children_pageid_recursively(pageid))
+    if not ignore_descendants:
+        list_of_pageid.extend(get_children_pageid_recursively(pageid))
     chunks = get_chunks_from_list_of_pages(list_of_pageid, method)
 
     osclient = OSClient("-".join([index, method]))
