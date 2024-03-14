@@ -26,6 +26,10 @@ def parse_html_body(html_body_to_parse):
     parsed_html = etree.tostring(tree, encoding='unicode', method='html').replace("\n","")
     return parsed_html
 
+def chunkenize_fixed(text):
+    text = ' '.join(etree.fromstring(text, parser=etree.HTMLParser()).itertext())
+    return size_chunkenizer.split_text(text)
+
 def chunkenize_html(text):
     document_chunks = html_chunkenizer.split_text(text)
     document_chunks = size_chunkenizer.split_documents(document_chunks)
@@ -40,7 +44,7 @@ def chunkenize_markdown(text):
 def chunkenize_by_method(method, text):
     match method:
         case 'fixed':
-            return size_chunkenizer.split_text(text)
+            return chunkenize_fixed(text)
         case 'html':
             return chunkenize_html(text)
         case 'markdown':
