@@ -107,3 +107,6 @@ ENV/
 
 # IDE settings
 .vscode/
+
+# Experiment results
+/experiments
