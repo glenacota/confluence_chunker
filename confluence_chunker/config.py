@@ -52,6 +52,12 @@ class OSClient:
                 "url": {
                     "type": "object",
                     "enabled": False
+                },
+                "createdDate": {
+                    "type": "date"
+                },
+                "updatedDate": {
+                    "type": "date"
                 }
             }
         }

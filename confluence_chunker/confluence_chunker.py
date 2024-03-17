@@ -59,11 +59,13 @@ def map_chunk_to_json(confluence_rest_response, chunk):
     return json.dumps({
         "title": confluence_rest_response['title'],
         "url": confluence_rest_response['_links']['base'] + confluence_rest_response['_links']['tinyui'],
-        "chunk": chunk
+        "chunk": chunk,
+        "createdDate": confluence_rest_response['history']['createdDate'],
+        "updatedDate": confluence_rest_response['history']['lastUpdated']['when']
     })
 
 def get_chunks_from_page(pageid, method):
-    response = confluence.get_page_by_id(pageid,expand="body.export_view")
+    response = confluence.get_page_by_id(pageid,expand="body.export_view,history.lastUpdated")
     html_body = parse_html_body(response['body']['export_view']['value'])
     
     chunks = chunkenize_by_method(method, html_body) if html_body else []
