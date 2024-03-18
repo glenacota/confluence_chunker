@@ -13,7 +13,9 @@ Information about the chunk is formatted as JSON, with the following schema:
 {
   "chunk": "the chunked text",
   "title": "the title of the source wiki page",
-  "url": "the url of the source wiki page" 
+  "url": "the url of the source wiki page",
+  "createdDate": <datetime_of_creation>,
+  "updatedDate": <datetime_of_last_update>
 }
 ```
 
@@ -62,6 +64,8 @@ Usage: confluence_chunker [OPTIONS]
 Options:
   --pageid TEXT                   The id of the page to process along with all
                                   its descendants.  [required]
+  --ignore_descendants            When set, process only the provided page
+                                  ignoring its descendants.
   --method [none|fixed|html|markdown]
                                   The chunking method to use. Default: none.
   --index TEXT                    The prefix of the OpenSearch index. Complete
